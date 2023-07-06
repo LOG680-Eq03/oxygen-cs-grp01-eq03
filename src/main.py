@@ -3,27 +3,55 @@ import logging
 import requests
 import json
 import time
+import sys, os
+from database import DbConnect
+from dotenv import dotenv_values
 
 
 class Main:
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         self._hub_connection = None
-        self.HOST = None  # Setup your host here
-        self.TOKEN = None  # Setup your token here
-        self.TICKETS = None  # Setup your tickets here
-        self.T_MAX = None  # Setup your max temperature here
-        self.T_MIN = None  # Setup your min temperature here
-        self.DATABASE = None  # Setup your database here
+        self.TOKEN = None
+        self.HOST = "http://34.95.34.5" 
+        self.TICKETS = 5 
+        self.T_MAX = 100 
+        self.T_MIN = 0 
+        self.DATABASE = "default.db"
 
-    def __del__(self):
+    def __del__(self, *args, **kwargs):
         if self._hub_connection != None:
             self._hub_connection.stop()
 
-    def setup(self):
+    def __checkTokenVariable__(self):
+        if self.TOKEN is None:
+            raise Exception(
+                "Tickets variable not setup (you need .env file or pass throught arguments)"
+            )
+
+    def __initFromArgs__(self, *args):
+        for arg in args:
+            vals = arg.split("=")
+            self.__addVariable__(vals[0], vals[1])
+
+    def __initFromEnvFile__(self, **kwargs):
+        for k, v in kwargs.items():
+            self.__addVariable__(k, v)
+
+    def __addVariable__(self, name, value):
+        if hasattr(self, name):
+            setattr(self, name, value)
+
+    def setup(self, *args, **kwargs):
+        if len(args) > 0 and len(kwargs)  == 0:
+            self.__initFromArgs__(*args)
+        if len(args)  == 0 and len(kwargs)  > 0:
+            self.__initFromEnvFile__(**kwargs)
+        self.__checkTokenVariable__()
+        self.DATABASE = DbConnect(self.DATABASE)
         self.setSensorHub()
 
-    def start(self):
-        self.setup()
+    def start(self, *args, **kwargs):
+        self.setup(*args, **kwargs)
         self._hub_connection.start()
 
         print("Press CTRL+C to exit.")
@@ -56,7 +84,7 @@ class Main:
             print(data[0]["date"] + " --> " + data[0]["data"])
             date = data[0]["date"]
             dp = float(data[0]["data"])
-            self.send_temperature_to_fastapi(date, dp)
+            self.send_event_to_database(date, dp)
             self.analyzeDatapoint(date, dp)
         except Exception as err:
             print(err)
@@ -74,13 +102,21 @@ class Main:
 
     def send_event_to_database(self, timestamp, event):
         try:
-            # To implement
+            self.DATABASE.insertDb(timestamp, event)
             pass
         except requests.exceptions.RequestException as e:
-            # To implement
+            print(e.response)
+            exit(1)
             pass
 
 
 if __name__ == "__main__":
+    args = sys.argv[1:]
+    directory = os.getcwd()
+    env_path = os.path.join(directory, ".env")
+    kwargs = {}
+    if os.path.isfile(env_path):
+        kwargs = dotenv_values(dotenv_path=env_path)
+        print(kwargs)
     main = Main()
-    main.start()
+    main.start(*args, **kwargs)

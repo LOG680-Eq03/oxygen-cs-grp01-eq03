@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 requests = "*"
 signalrcore = "*"
+mariadb = "*"
+python-dotenv = "*"
 
 [dev-packages]
 
