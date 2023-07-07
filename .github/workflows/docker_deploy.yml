@@ -3,7 +3,7 @@ name: Docker Deploy
 
 on:
     workflow_run:
-      workflows: ["Python Package"]
+      workflows: [Python Package]
       types: [completed]
  
 jobs:
