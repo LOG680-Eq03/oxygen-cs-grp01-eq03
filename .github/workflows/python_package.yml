@@ -25,6 +25,7 @@ jobs:
         python -m pip install pipenv
         python -m pip install flake8
         pipenv install --deploy
+        sudo apt-get install python3-dev libmariadb3 libmariadb-dev
     - name: execute test (custom test)
       run: |
         pipenv run test
