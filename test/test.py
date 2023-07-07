@@ -8,6 +8,7 @@ from src.database import DbConnect
 from src.main import Main
 import sys, io
 
+
 class testMainTemplateNoEnv(unittest.TestCase):
     tempFileData = None
     capturedOutput = None
@@ -16,8 +17,8 @@ class testMainTemplateNoEnv(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.capturedOutput = io.StringIO() 
-        sys.stdout = self.capturedOutput   
+        self.capturedOutput = io.StringIO()
+        sys.stdout = self.capturedOutput
         if os.path.isfile(self.env_path):
             f_r = open(self.env_path, "r")
             self.tempFileData = f_r.read()
@@ -26,13 +27,14 @@ class testMainTemplateNoEnv(unittest.TestCase):
 
     @classmethod
     def tearDown(self):
-        sys.stdout = sys.__stdout__   
+        sys.stdout = sys.__stdout__
         if self.tempFileData is not None:
             f_w = open(self.env_path, "w")
             self.tempFileData = f_w.write(self.tempFileData)
             f_w.close()
         self.capturedOutput = None
         self.tempFileData = None
+
 
 class testMainTemplateEnv(unittest.TestCase):
     isNotHere = False
@@ -43,8 +45,8 @@ class testMainTemplateEnv(unittest.TestCase):
 
     @classmethod
     def setUpClass(self):
-        self.capturedOutput = io.StringIO() 
-        sys.stdout = self.capturedOutput   
+        self.capturedOutput = io.StringIO()
+        sys.stdout = self.capturedOutput
         if not os.path.isfile(self.env_path):
             self.isNotHere = True
             f_w = open(self.env_path, "w")
@@ -53,23 +55,30 @@ class testMainTemplateEnv(unittest.TestCase):
 
     @classmethod
     def tearDown(self):
-        sys.stdout = sys.__stdout__   
+        sys.stdout = sys.__stdout__
         if self.isNotHere:
             os.remove(self.env_path)
         self.capturedOutput = None
+
 
 class testMainConstructorArgs(testMainTemplateNoEnv):
     def testCreateMainDefault(self):
         cls = Main()
         cls.setup("TOKEN=test")
-        self.assertEqual(self.capturedOutput.getvalue(), "WARNING !! no database was found, data will only display\n")
+        self.assertEqual(
+            self.capturedOutput.getvalue(),
+            "WARNING !! no database was found, data will only display\n",
+        )
 
 
 class testMainConstructorEnv(testMainTemplateEnv):
     def testCreateMainDefault(self):
         cls = Main()
         cls.setup()
-        self.assertEqual(self.capturedOutput.getvalue(), "WARNING !! no database was found, data will only display\n")
+        self.assertEqual(
+            self.capturedOutput.getvalue(),
+            "WARNING !! no database was found, data will only display\n",
+        )
 
 
 class testMainConstructorError(testMainTemplateNoEnv):
@@ -78,12 +87,13 @@ class testMainConstructorError(testMainTemplateNoEnv):
         with self.assertRaises(Exception) as context:
             cls.setup()
 
-        self.assertTrue('no environment variable was given' in context.exception.args)
+        self.assertTrue("no environment variable was given" in context.exception.args)
 
 
 class testDatabase(unittest.TestCase):
-
-    mock_database = 'database:oxygen, username:root, passwd:password, host:127.0.0.1, port:3306'
+    mock_database = (
+        "database:oxygen, username:root, passwd:password, host:127.0.0.1, port:3306"
+    )
 
     @classmethod
     @patch("src.database.mariadb")
@@ -94,7 +104,7 @@ class testDatabase(unittest.TestCase):
         mock_result = MagicMock()
         mock_db.version = "MOCK"
         cursor.__enter__.return_value = mock_result
-        cursor.__exit__=MagicMock()
+        cursor.__exit__ = MagicMock()
         mock_conn.cursor.return_value = cursor
 
     @patch("src.database.mariadb")
@@ -104,7 +114,6 @@ class testDatabase(unittest.TestCase):
         self.assertEqual(mock_db.return_value, db.comm)
 
 
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     result = unittest.main()
     print(result)
