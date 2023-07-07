@@ -26,6 +26,7 @@ jobs:
         python -m pip install flake8 pytest
         pipenv install --deploy
   test:
+    needs: build
     runs-on: windows-latest
     strategy:
       fail-fast: false
