@@ -31,4 +31,4 @@ jobs:
           uses: docker/build-push-action@v4
           with:
               push: true
-              tags: laurentfrenette/log680:latest,laurentfrenette/log680:oxygen-os-v-${{ github.sha }}
+              tags: laurentfrenette/log680:latest,laurentfrenette/log680:oxygen-cs-commit-$(git rev-parse --short HEAD)
