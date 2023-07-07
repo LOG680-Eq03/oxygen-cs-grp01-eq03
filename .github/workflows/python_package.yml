@@ -1,0 +1,46 @@
+# This workflow will install Python dependencies, run tests and lint with a variety of Python versions
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python package
+
+on:
+  push:
+
+jobs:
+  build_and_test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.8"]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python 3.8
+      uses: actions/setup-python@v3
+      with:
+        python-version: 3.8
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install pipenv
+        python -m pip install flake8
+        sudo apt-get install -y python3-dev libmariadb3 libmariadb-dev
+        pipenv install --deploy
+    - name: execute test (custom test)
+      run: |
+        pipenv run test
+
+    # - name: execute test (custom Pylint)
+    #   run: |
+    #     pipenv run lint
+
+    - name: excute test (lint)
+      run: |
+        # stop the build if there are Python syntax errors or undefined names
+        flake8 . --count --select=E9,F63,F7,F82,F821  --show-source --statistics
+        # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+    - name: execute test (formatter - black)
+      uses: rickstaa/action-black@v1
+      with:
+          black_args: ". --check"
