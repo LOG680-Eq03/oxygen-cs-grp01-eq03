@@ -20,4 +20,4 @@ RUN pip install signalrcore
 COPY . /app
 
 # Set the command to run the app
-CMD ["pipenv", "run", "start"]
+CMD ["pipenv", "run", "start", "TOKEN=${LAB02_TOKEN}"]
