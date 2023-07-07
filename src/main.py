@@ -16,7 +16,7 @@ class Main:
         self.TICKETS = 5 
         self.T_MAX = 100 
         self.T_MIN = 0 
-        self.DATABASE = "default.db"
+        self.DATABASE = None
 
     def __del__(self, *args, **kwargs):
         if self._hub_connection != None:
@@ -49,7 +49,10 @@ class Main:
         if len(args) > 0:
             self.__initFromArgs__(*args)
         self.__checkTokenVariable__()
-        self.DATABASE = DbConnect(self.DATABASE)
+        if self.DATABASE is not None:
+            self.DATABASE = DbConnect(self.DATABASE)
+        else:
+            print("WARNING !! no database was found, data will only display")
         self.setSensorHub()
 
     def start(self, *args, **kwargs):
@@ -86,7 +89,8 @@ class Main:
             print(data[0]["date"] + " --> " + data[0]["data"])
             date = data[0]["date"]
             dp = float(data[0]["data"])
-            self.send_event_to_database(date, dp)
+            if self.DATABASE is not None:
+                self.send_event_to_database(date, dp)
             self.analyzeDatapoint(date, dp)
         except Exception as err:
             print(err)
