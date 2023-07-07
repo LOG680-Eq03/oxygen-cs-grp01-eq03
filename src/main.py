@@ -42,10 +42,12 @@ class Main:
             setattr(self, name, value)
 
     def setup(self, *args, **kwargs):
-        if len(args) > 0 and len(kwargs)  == 0:
-            self.__initFromArgs__(*args)
-        if len(args)  == 0 and len(kwargs)  > 0:
+        if len(args) == 0 and len(kwargs) == 0:
+            raise Exception("no environment variable was given")
+        if len(kwargs)  > 0:
             self.__initFromEnvFile__(**kwargs)
+        if len(args) > 0:
+            self.__initFromArgs__(*args)
         self.__checkTokenVariable__()
         self.DATABASE = DbConnect(self.DATABASE)
         self.setSensorHub()
