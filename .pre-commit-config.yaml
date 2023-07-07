@@ -1,1 +1,38 @@
-## To implement
+default_language_version:
+    python: python3.8
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+    -   id: check-yaml
+    -   id: trailing-whitespace
+    -   id: check-merge-conflict
+    -   id: check-symlinks
+    -   id: detect-private-key
+    -   id: no-commit-to-branch
+-   repo: https://github.com/psf/black
+    rev: 23.3.0
+    hooks:
+    -   id: black
+-   repo: https://github.com/PyCQA/bandit
+    rev: 1.7.5
+    hooks:
+    -   id: bandit
+-   repo: https://github.com/PyCQA/pydocstyle
+    rev: 6.3.0
+    hooks:
+    -   id: pydocstyle
+-   repo: local
+    hooks:
+    -   id: tests
+        name: run test with pipenv
+        language: python
+        entry: pipenv run test
+        types: [python]
+        stages: [commit]
+    -   id: PyLint
+        name: run custom pylint test with pipenv
+        language: python
+        entry: pipenv run lint
+        types: [python]
+        stages: [commit]
