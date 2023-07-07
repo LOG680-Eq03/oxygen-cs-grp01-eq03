@@ -15,6 +15,8 @@ jobs:
     on-success:
       runs-on: ubuntu-latest
       steps:
+        - name: Checkout
+          uses: actions/checkout@v2
         - name: Set up QEMU
           uses: docker/setup-qemu-action@v2
         - name: Set up Docker Buildx
@@ -29,4 +31,4 @@ jobs:
           uses: docker/build-push-action@v4
           with:
               push: true
-              tags: laurentfrenette/log680:latest
+              tags: laurentfrenette/log680:oxygen-cs--latest,laurentfrenette/log680:latest
