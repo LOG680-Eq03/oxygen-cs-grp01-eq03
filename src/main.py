@@ -3,18 +3,20 @@ from signalrcore.hub_connection_builder import HubConnectionBuilder
 from dotenv import dotenv_values
 
 try:
-    from . import database # pylint: disable=import-error
-except ImportError: pass
+    from . import database  # pylint: disable=import-error
+except ImportError:
+    pass
+
 
 class Main:
     def __init__(self):
         self._hub_connection = None
-        self.TOKEN=None
-        self.HOST="http://34.95.34.5"
-        self.TICKETS=5
-        self.T_MAX=100
-        self.T_MIN=0
-        self.DATABASE=None
+        self.TOKEN = None
+        self.HOST = "http://34.95.34.5"
+        self.TICKETS = 5
+        self.T_MAX = 100
+        self.T_MIN = 0
+        self.DATABASE = None
 
     def __del__(self, *args, **kwargs):
         if self._hub_connection is not None:
@@ -47,7 +49,7 @@ class Main:
             kwargs = dotenv_values(dotenv_path=env_path)
         if len(args) == 0 and len(kwargs) == 0:
             raise Exception("no environment variable was given")
-        if len(kwargs)  > 0:
+        if len(kwargs) > 0:
             self.__initFromEnvFile__(**kwargs)
         if len(args) > 0:
             self.__initFromArgs__(*args)
@@ -87,7 +89,7 @@ class Main:
         self._hub_connection.on_close(lambda: print("||| Connection closed."))
         self._hub_connection.on_error(
             lambda data: print(f"||| An exception was thrown closed: {data.error}")
-            )
+        )
 
     def onSensorDataReceived(self, data):
         try:
@@ -109,7 +111,7 @@ class Main:
     def sendActionToHvac(self, date, action, nbTick):
         req_sim = requests.get(f"{self.HOST}/api/hvac/{self.TOKEN}/{action}/{nbTick}")
         details = json.loads(req_sim.text)
-        print(date + " --> " + details['Response'])
+        print(date + " --> " + details["Response"])
 
     def send_event_to_database(self, timestamp, event):
         try:
@@ -118,6 +120,7 @@ class Main:
         except requests.exceptions.RequestException as error_request:
             print(error_request.response)
             exit(1)
+
 
 if __name__ == "__main__":
     args = sys.argv[1:]
