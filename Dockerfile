@@ -1,5 +1,7 @@
 FROM python:3.8
 
+ENV PYTHONUNBUFFERED=1
+
 # Install pipenv
 RUN pip install pipenv
 
@@ -18,4 +20,4 @@ RUN pip install signalrcore
 COPY . /app
 
 # Set the command to run the app
-CMD ["pipenv", "run", "python", "src/main.py"]
+CMD ["pipenv", "run", "start"]
