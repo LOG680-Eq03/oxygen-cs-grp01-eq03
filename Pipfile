@@ -7,6 +7,7 @@ name = "pypi"
 requests = "*"
 signalrcore = "*"
 mariadb = "*"
+pylint = "*"
 python-dotenv = "*"
 
 [dev-packages]
@@ -16,5 +17,5 @@ python_version = "3.8"
 
 [scripts]
 start = "python src/main.py"
-test = "# To implement"
-lint = "# To implement"
+test = "python test/test.py"
+lint = "pylint src/main.py"

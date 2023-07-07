@@ -2,12 +2,6 @@ import sys, os, time, json, requests, logging
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from dotenv import dotenv_values
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.dirname(SCRIPT_DIR))
-
-from database import DbConnect
-
-
 class Main:
     def __init__(self):
         self._hub_connection = None
