@@ -2,6 +2,10 @@ import sys, os, time, json, requests, logging
 from signalrcore.hub_connection_builder import HubConnectionBuilder
 from dotenv import dotenv_values
 
+try:
+    from . import database # pylint: disable=import-error
+except ImportError: pass
+
 class Main:
     def __init__(self):
         self._hub_connection = None
@@ -49,7 +53,7 @@ class Main:
             self.__initFromArgs__(*args)
         self.__checkTokenVariable__()
         if self.DATABASE is not None:
-            self.DATABASE = DbConnect(self.DATABASE)
+            self.DATABASE = database.DbConnect(self.DATABASE)
         else:
             print("WARNING !! no database was found, data will only display")
         self.setSensorHub()
