@@ -1,25 +1,25 @@
+import sys, os, time, json, requests, logging
 from signalrcore.hub_connection_builder import HubConnectionBuilder
-import logging
-import requests
-import json
-import time
-import sys, os
-from database import DbConnect
 from dotenv import dotenv_values
+
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+from database import DbConnect
 
 
 class Main:
-    def __init__(self, *args, **kwargs):
+    def __init__(self):
         self._hub_connection = None
-        self.TOKEN = None
-        self.HOST = "http://34.95.34.5" 
-        self.TICKETS = 5 
-        self.T_MAX = 100 
-        self.T_MIN = 0 
-        self.DATABASE = None
+        self.TOKEN=None
+        self.HOST="http://34.95.34.5"
+        self.TICKETS=5
+        self.T_MAX=100
+        self.T_MIN=0
+        self.DATABASE=None
 
     def __del__(self, *args, **kwargs):
-        if self._hub_connection != None:
+        if self._hub_connection is not None:
             self._hub_connection.stop()
 
     def __checkTokenVariable__(self):
@@ -41,7 +41,12 @@ class Main:
         if hasattr(self, name):
             setattr(self, name, value)
 
-    def setup(self, *args, **kwargs):
+    def setup(self, *args):
+        directory = os.getcwd()
+        env_path = os.path.join(directory, ".env")
+        kwargs = {}
+        if os.path.isfile(env_path):
+            kwargs = dotenv_values(dotenv_path=env_path)
         if len(args) == 0 and len(kwargs) == 0:
             raise Exception("no environment variable was given")
         if len(kwargs)  > 0:
@@ -55,8 +60,8 @@ class Main:
             print("WARNING !! no database was found, data will only display")
         self.setSensorHub()
 
-    def start(self, *args, **kwargs):
-        self.setup(*args, **kwargs)
+    def start(self, *args):
+        self.setup(*args)
         self._hub_connection.start()
 
         print("Press CTRL+C to exit.")
@@ -82,7 +87,9 @@ class Main:
         self._hub_connection.on("ReceiveSensorData", self.onSensorDataReceived)
         self._hub_connection.on_open(lambda: print("||| Connection opened."))
         self._hub_connection.on_close(lambda: print("||| Connection closed."))
-        self._hub_connection.on_error(lambda data: print(f"||| An exception was thrown closed: {data.error}"))
+        self._hub_connection.on_error(
+            lambda data: print(f"||| An exception was thrown closed: {data.error}")
+            )
 
     def onSensorDataReceived(self, data):
         try:
@@ -102,27 +109,19 @@ class Main:
             self.sendActionToHvac(date, "TurnOnHeater", self.TICKETS)
 
     def sendActionToHvac(self, date, action, nbTick):
-        r = requests.get(f"{self.HOST}/api/hvac/{self.TOKEN}/{action}/{nbTick}")
-        details = json.loads(r.text)
-        print(details)
+        req_sim = requests.get(f"{self.HOST}/api/hvac/{self.TOKEN}/{action}/{nbTick}")
+        details = json.loads(req_sim.text)
+        print(date + " --> " + details['Response'])
 
     def send_event_to_database(self, timestamp, event):
         try:
             self.DATABASE.insertDb(timestamp, event)
             pass
-        except requests.exceptions.RequestException as e:
-            print(e.response)
+        except requests.exceptions.RequestException as error_request:
+            print(error_request.response)
             exit(1)
-            pass
-
 
 if __name__ == "__main__":
     args = sys.argv[1:]
-    directory = os.getcwd()
-    env_path = os.path.join(directory, ".env")
-    kwargs = {}
-    if os.path.isfile(env_path):
-        kwargs = dotenv_values(dotenv_path=env_path)
-        print(kwargs)
     main = Main()
-    main.start(*args, **kwargs)
+    main.start(*args)
