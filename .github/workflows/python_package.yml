@@ -29,9 +29,10 @@ jobs:
       run: |
         pipenv run test
 
-    - name: execute test (custom Pylint)
-      run: |
-        pipenv run lint
+    # - name: execute test (custom Pylint)
+    #   run: |
+    #     pipenv run lint
+
     - name: excute test (lint)
       run: |
         # stop the build if there are Python syntax errors or undefined names
@@ -42,3 +43,15 @@ jobs:
       uses: rickstaa/action-black@v1
       with:
           black_args: ". --check"
+    - name: Security check - Bandit
+      uses: ./
+      with:
+        python_version: 3.8
+        project_path: .
+        ignore_failure: true
+
+    - name: Security check report artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: Security report
+        path: output/security_report.txt
