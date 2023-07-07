@@ -44,15 +44,3 @@ jobs:
       uses: rickstaa/action-black@v1
       with:
           black_args: ". --check"
-    - name: Security check - Bandit
-      uses: ./
-      with:
-        python_version: 3.8
-        project_path: .
-        ignore_failure: true
-
-    - name: Security check report artifacts
-      uses: actions/upload-artifact@v1
-      with:
-        name: Security report
-        path: output/security_report.txt
